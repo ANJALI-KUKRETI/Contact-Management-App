@@ -3,51 +3,57 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "PLease enter your name"],
-  },
-  email: {
-    type: String,
-    required: [true, "Please provide your email"],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, "Please provide a valid email"],
-  },
-  photo: {
-    type: String,
-  },
-  password: {
-    type: String,
-    required: [true, "Please provide a password"],
-    minLength: [6, "Password length must be of minimum 6 characters"],
-    select: false,
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, "Please confirm your password"],
-    validate: {
-      validator: function (el) {
-        return el === this.password;
-      },
-      message: "Passwords are not the same",
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "PLease enter your name"],
     },
+    email: {
+      type: String,
+      required: [true, "Please provide your email"],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "Please provide a valid email"],
+    },
+    photo: {
+      type: String,
+    },
+    password: {
+      type: String,
+      required: [true, "Please provide a password"],
+      minLength: [6, "Password length must be of minimum 6 characters"],
+      select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, "Please confirm your password"],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: "Passwords are not the same!",
+      },
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  active: {
-    type: Boolean,
-    default: true,
-    select: false,
-  },
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

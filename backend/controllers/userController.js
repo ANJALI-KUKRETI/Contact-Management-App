@@ -9,6 +9,10 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
 
 exports.createUser = catchAsync(async (req, res, next) => {
   const doc = await User.create(req.body);
@@ -66,6 +70,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const Users = User.find();
   const doc = await Users;
@@ -77,6 +82,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 exports.updateUser = catchAsync(async (req, res, next) => {
   const doc = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -90,6 +96,7 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     data: doc,
   });
 });
+
 exports.deleteUser = catchAsync(async (req, res, next) => {
   const doc = await User.findByIdAndDelete(req.params.id);
   if (!doc) {

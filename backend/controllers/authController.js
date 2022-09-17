@@ -68,8 +68,6 @@ exports.protect = catchAsync(async (req, res, next) => {
   //   token = req.cookies.jwt;
   // }
 
-  console.log(token);
-
   if (!token) {
     return next(
       new AppError("You are not logged in, Please login to access"),
@@ -92,9 +90,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  //grant access to protected route
   req.user = freshUser;
-  //   res.locals.user = freshUser;
   next();
 });
 

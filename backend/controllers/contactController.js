@@ -1,10 +1,12 @@
 const Contact = require("../models/contactModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("./../utils/appError");
+const cloudinary = require("../utils/cloudinary");
 
 exports.getAllContacts = catchAsync(async (req, res, next) => {
-  const queryObj = { ...req.query };
-  const allowed = ["name", "city", "state", "country", "category"];
+  console.log(req.user._id);
+  const queryObj = { ...req.query, user: req.user._id };
+  // const allowed = ["name", "city", "state", "country", "category"];
   const notAllowed = ["createdAt", "secret", "phone", "photo", "email"];
 
   for (let key in queryObj) {
@@ -30,6 +32,10 @@ exports.getAllContacts = catchAsync(async (req, res, next) => {
 });
 
 exports.createContact = catchAsync(async (req, res, next) => {
+  if (!req.body.user) req.body.user = req.user._id;
+  let response;
+  if (req.file) response = await cloudinary.uploader.upload(req.file.path);
+  console.log(response);
   const newContact = await Contact.create(req.body);
   res.status(201).json({
     status: "success",

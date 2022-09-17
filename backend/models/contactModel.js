@@ -10,7 +10,6 @@ const contactSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: true,
     lowercase: true,
   },
   photo: {
@@ -18,7 +17,6 @@ const contactSchema = new mongoose.Schema({
   },
   phone: {
     type: Number,
-    unique: true,
     validate: /^$|^\d{10}$/,
     required: [true, "Please enter the mobile number"],
   },
@@ -32,15 +30,24 @@ const contactSchema = new mongoose.Schema({
   city: String,
   state: String,
   country: String,
+  notes: {
+    type: String,
+    trim: true,
+  },
+  category: {
+    type: String,
+    enum: ["General", "Office", "Friends", "Relatives", "Important"],
+    default: "General",
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
     select: false,
   },
-  category: {
-    type: String,
-    enum: ["general", "office", "friends", "relatives", "importants", "others"],
-    default: "others",
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: [true, "Contact must belong to a user"],
   },
 });
 
