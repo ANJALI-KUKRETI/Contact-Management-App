@@ -15,6 +15,9 @@ const contactSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
+  cloudinary_id: {
+    type: String,
+  },
   phone: {
     type: Number,
     validate: /^$|^\d{10}$/,

@@ -1,7 +1,7 @@
 const express = require("express");
 const contactController = require("../controllers/contactController");
 const authController = require("../controllers/authController");
-
+const upload = require("../utils/multer");
 const router = express.Router();
 
 router.use(authController.protect);
@@ -14,12 +14,12 @@ router
 router
   .route("/")
   .get(contactController.getAllContacts)
-  .post(contactController.createContact);
+  .post(upload.single("photo"), contactController.createContact);
 
 router
   .route("/:id")
   .get(contactController.getContact)
-  .patch(contactController.updateContact)
+  .patch(upload.single("photo"), contactController.updateContact)
   .delete(contactController.deleteContact);
 
 module.exports = router;

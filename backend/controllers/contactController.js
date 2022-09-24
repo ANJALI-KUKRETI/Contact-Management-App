@@ -35,8 +35,16 @@ exports.createContact = catchAsync(async (req, res, next) => {
   if (!req.body.user) req.body.user = req.user._id;
   let response;
   if (req.file) response = await cloudinary.uploader.upload(req.file.path);
-  console.log(response);
-  const newContact = await Contact.create(req.body);
+  const body = req.file
+    ? {
+        ...req.body,
+        photo: response.secure_url,
+        cloudinary_id: response.public_id,
+      }
+    : {
+        ...req.body,
+      };
+  const newContact = await Contact.create(body);
   res.status(201).json({
     status: "success",
     data: {
@@ -59,17 +67,38 @@ exports.getContact = catchAsync(async (req, res, next) => {
 });
 
 exports.updateContact = catchAsync(async (req, res, next) => {
-  const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  let body, response;
+  const contact = await Contact.findById(req.params.id);
   if (!contact) {
     return next(new AppError("No tour found with that ID", 404));
   }
+  if (req.file) {
+    if (contact.cloudinary_id) {
+      await cloudinary.uploader.destroy(contact.cloudinary_id);
+      response = await cloudinary.uploader.upload(req.file.path);
+      body = {
+        photo: response.secure_url,
+        cloudinary_id: response.public_id,
+      };
+    } else {
+      body = contact.cloudinary_id
+        ? {
+            ...req.body,
+            photo: contact.photo,
+          }
+        : {
+            ...req.body,
+          };
+    }
+  }
+  const updatedContact = await Contact.findByIdAndUpdate(req.params.id, body, {
+    new: true,
+    runValidators: true,
+  });
   res.status(200).json({
     status: "success",
     data: {
-      contact,
+      updatedContact,
     },
   });
 });
